@@ -8,6 +8,49 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework import generics
+from rest_framework import mixins
+
+
+class GenericApiView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin,
+                     mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
+    serializer_class = ArticleSerializer
+    queryset = Article.objects.all()
+    # lookup_field = 'id'
+
+    # def get(self, request):
+    #     return self.list(request)
+
+    def get(self, request):
+        # Note the use of `get_queryset()` instead of `self.queryset`
+        queryset = self.get_queryset()
+        # print(queryset)
+        serializer = ArticleSerializer(queryset, many=True)
+        # if id:
+        #     return self.retrieve(request)
+        # else:
+        return Response(serializer.data)
+
+    # def perform_create(self, serializer):
+    #     serializer.save()
+
+    #
+    # def post(self, request):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+# def patch(self, request, id):
+    #     return self.partial_update(request, id)
+    #
+    # # def put(self, request, id=None):
+    # #     return self.update(request, id)
+    #
+    # def delete(self, request, id):
+    #     return self.destroy(request, id)
 
 
 class ArticleApiView(APIView):
@@ -20,6 +63,8 @@ class ArticleApiView(APIView):
         serializer = ArticleSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            print(serializer.data)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
