@@ -16,6 +16,7 @@ class GenericApiView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
                      mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
     serializer_class = ArticleSerializer
     queryset = Article.objects.all()
+
     # lookup_field = 'id'
 
     # def get(self, request):
@@ -29,28 +30,28 @@ class GenericApiView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
         # if id:
         #     return self.retrieve(request)
         # else:
-        return Response(serializer.data)
+        return self.list(request)
 
     # def perform_create(self, serializer):
     #     serializer.save()
 
     #
-    # def post(self, request):
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    def post(self, request):
+        serializer = ArticleSerializer(request.data, many=True)
+        if serializer.is_valid():
+
+            return self.perform_create(serializer)
+
 
 
 # def patch(self, request, id):
-    #     return self.partial_update(request, id)
-    #
-    # # def put(self, request, id=None):
-    # #     return self.update(request, id)
-    #
-    # def delete(self, request, id):
-    #     return self.destroy(request, id)
+#     return self.partial_update(request, id)
+#
+# # def put(self, request, id=None):
+# #     return self.update(request, id)
+#
+# def delete(self, request, id):
+#     return self.destroy(request, id)
 
 
 class ArticleApiView(APIView):
@@ -62,7 +63,9 @@ class ArticleApiView(APIView):
     def post(self, request):
         serializer = ArticleSerializer(data=request.data)
         if serializer.is_valid():
+            # serializer.save()
             serializer.save()
+
             print(serializer.data)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
