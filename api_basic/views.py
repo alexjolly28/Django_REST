@@ -10,63 +10,53 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework import mixins
+import json
+from api_basic.models import Article
 
 
-class GenericApiView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin,
-                     mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
-    serializer_class = ArticleSerializer
+class GenericApiView(mixins.CreateModelMixin,
+                     mixins.RetrieveModelMixin,
+                     mixins.UpdateModelMixin,
+                     mixins.ListModelMixin,
+                     generics.GenericAPIView):
     queryset = Article.objects.all()
-
-    # lookup_field = 'id'
-
-    # def get(self, request):
-    #     return self.list(request)
+    serializer_class = ArticleSerializer
 
     def get(self, request):
-        # Note the use of `get_queryset()` instead of `self.queryset`
-        queryset = self.get_queryset()
-        # print(queryset)
-        serializer = ArticleSerializer(queryset, many=True)
-        # if id:
-        #     return self.retrieve(request)
-        # else:
         return self.list(request)
 
-    # def perform_create(self, serializer):
-    #     serializer.save()
-
-    #
     def post(self, request):
-        serializer = ArticleSerializer(request.data, many=True)
-        if serializer.is_valid():
-
-            return self.perform_create(serializer)
-
-
-
-# def patch(self, request, id):
-#     return self.partial_update(request, id)
-#
-# # def put(self, request, id=None):
-# #     return self.update(request, id)
-#
-# def delete(self, request, id):
-#     return self.destroy(request, id)
+        title = request.data['title']
+        print(title)
+        queryset = Article.objects.get(id=37)
+        serializer = ArticleSerializer(queryset)
+        print(serializer.data['author'])
+        return self.query(serializer)
 
 
 class ArticleApiView(APIView):
+    parser_classes = [JSONParser]
+
     def get(self, request):
         article = Article.objects.all()
         serializer = ArticleSerializer(article, many=True)
         return Response(serializer.data)
 
+    # def post(self, request, format=None):
+    #
+    #     # received_json_data = json.loads(request.data)
+    #
+    #     return Response({'received data': received_json_data})
+
     def post(self, request):
+        print(request.data)
         serializer = ArticleSerializer(data=request.data)
+
         if serializer.is_valid():
             # serializer.save()
-            serializer.save()
+            # serializer.save()
 
-            print(serializer.data)
+            # print(serializer.data)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
