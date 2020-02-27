@@ -31,7 +31,8 @@ class GenericApiView(mixins.CreateModelMixin,
         queryset = Article.objects.get(id=37)
         serializer = ArticleSerializer(queryset)
         print(serializer.data['author'])
-        return self.query(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class ArticleApiView(APIView):
