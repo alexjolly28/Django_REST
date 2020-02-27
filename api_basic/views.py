@@ -28,7 +28,7 @@ class GenericApiView(mixins.CreateModelMixin,
     def post(self, request):
         title = request.data['title']
         print(title)
-        queryset = Article.objects.get(id=37)
+        queryset = Article.objects.get(id=36)
         serializer = ArticleSerializer(queryset)
         print(serializer.data['author'])
         headers = self.get_success_headers(serializer.data)
